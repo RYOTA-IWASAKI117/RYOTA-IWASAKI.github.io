@@ -2,43 +2,260 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>アボカドのすべて</title>
+<title>MARK CALENDAR</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <style>
-body {
-    font-family: Arial;
-    text-align: center;
-    background-color: #f4fff2;
-    margin: 0;
+
+body{
+background:#121212;
+color:white;
+font-family:sans-serif;
+text-align:center;
+margin:0;
 }
 
-h1 {
-    margin-top: 150px;
-    font-size: 50px;
-    color: #2e7d32;
+h1{
+margin-top:30px;
+letter-spacing:4px;
 }
 
-.button {
-    display: block;
-    width: 200px;
-    margin: 20px auto;
-    padding: 15px;
-    background-color: #2e7d32;
-    color: white;
-    text-decoration: none;
-    border-radius: 8px;
-    font-size: 18px;
+#capture{
+background:#1e1e1e;
+padding:20px;
+border-radius:12px;
+max-width:900px;
+margin:auto;
 }
+
+#calendarMark,#calendarTime{
+max-width:900px;
+margin:auto;
+}
+
+button{
+background:#444;
+color:white;
+border:none;
+padding:14px 22px;
+font-size:16px;
+border-radius:8px;
+cursor:pointer;
+margin:10px;
+}
+
+button:hover{
+background:#666;
+}
+
+#calendarTime{
+display:none;
+}
+
+#timeModal{
+display:none;
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:#1e1e1e;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 20px rgba(0,0,0,0.5);
+}
+
+input{
+padding:8px;
+margin:10px;
+}
+
 </style>
+
 </head>
 
 <body>
 
-<h1>🥑 アボカドのすべて</h1>
+<h1>MARK CALENDAR</h1>
 
-<a href="nutrition.html" class="button">栄養価</a>
-<a href="beauty.html" class="button">美容効果</a>
-<a href="production.html" class="button">生産地</a>
+<div id="capture">
+
+<h2>MARK CALENDAR</h2>
+
+<div id="calendarMark"></div>
+<div id="calendarTime"></div>
+
+</div>
+
+<button onclick="saveImage()">保存して共有</button>
+
+<br>
+
+<button onclick="switchCalendar()">時間まで設定</button>
+
+<div id="timeModal">
+
+<p>時間を選択</p>
+
+開始
+<input type="time" id="startTime">
+
+終了
+<input type="time" id="endTime">
+
+<br>
+
+<button onclick="addTime()">OK</button>
+
+</div>
+
+<script>
+
+let markCalendar
+let timeCalendar
+let selectedDate=null
+let timeMode=false
+
+document.addEventListener('DOMContentLoaded',function(){
+
+let markEl=document.getElementById('calendarMark')
+let timeEl=document.getElementById('calendarTime')
+
+
+// 通常カレンダー
+markCalendar=new FullCalendar.Calendar(markEl,{
+
+initialView:'dayGridMonth',
+
+dateClick:function(info){
+
+let date=info.dateStr
+
+let existingEvent=markCalendar.getEvents().find(e=>e.startStr===date)
+
+if(existingEvent){
+
+existingEvent.remove()
+
+}else{
+
+markCalendar.addEvent({
+title:"●",
+start:date,
+allDay:true
+})
+
+}
+
+}
+
+})
+
+
+// 時間カレンダー
+timeCalendar=new FullCalendar.Calendar(timeEl,{
+
+initialView:'dayGridMonth',
+
+dateClick:function(info){
+
+let date=info.dateStr
+
+let existingEvent=timeCalendar.getEvents().find(e=>e.startStr===date)
+
+if(existingEvent){
+
+existingEvent.remove()
+
+}else{
+
+selectedDate=date
+document.getElementById("timeModal").style.display="block"
+
+}
+
+}
+
+})
+
+markCalendar.render()
+timeCalendar.render()
+
+})
+
+
+function switchCalendar(){
+
+timeMode=!timeMode
+
+if(timeMode){
+
+document.getElementById("calendarMark").style.display="none"
+document.getElementById("calendarTime").style.display="block"
+
+}else{
+
+document.getElementById("calendarMark").style.display="block"
+document.getElementById("calendarTime").style.display="none"
+
+}
+
+}
+
+
+function addTime(){
+
+let start=document.getElementById("startTime").value
+let end=document.getElementById("endTime").value
+
+if(!start||!end)return
+
+timeCalendar.addEvent({
+
+title:`${start}-${end}`,
+start:selectedDate,
+allDay:true
+
+})
+
+document.getElementById("timeModal").style.display="none"
+
+}
+
+
+function saveImage(){
+
+html2canvas(document.querySelector("#capture")).then(canvas=>{
+
+canvas.toBlob(function(blob){
+
+const file=new File([blob],"mark-calendar.png",{type:"image/png"})
+
+if(navigator.share){
+
+navigator.share({
+files:[file],
+title:"MARK CALENDAR"
+})
+
+}else{
+
+let link=document.createElement("a")
+link.download="mark-calendar.png"
+link.href=canvas.toDataURL()
+link.click()
+
+}
+
+})
+
+})
+
+}
+
+</script>
 
 </body>
 </html>
