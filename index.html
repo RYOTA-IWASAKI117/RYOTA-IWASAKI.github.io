@@ -93,7 +93,7 @@ margin:10px;
 
 <br>
 
-<button onclick="switchCalendar()">時間まで設定</button>
+<button id="toggleBtn" onclick="switchCalendar()">時間まで設定</button>
 
 <div id="timeModal">
 
@@ -124,7 +124,6 @@ let markEl=document.getElementById('calendarMark')
 let timeEl=document.getElementById('calendarTime')
 
 
-// 通常カレンダー
 markCalendar=new FullCalendar.Calendar(markEl,{
 
 initialView:'dayGridMonth',
@@ -154,7 +153,6 @@ allDay:true
 })
 
 
-// 時間カレンダー
 timeCalendar=new FullCalendar.Calendar(timeEl,{
 
 initialView:'dayGridMonth',
@@ -195,10 +193,18 @@ if(timeMode){
 document.getElementById("calendarMark").style.display="none"
 document.getElementById("calendarTime").style.display="block"
 
+document.getElementById("toggleBtn").innerText="日程のみ設定"
+
+timeCalendar.updateSize()
+
 }else{
 
 document.getElementById("calendarMark").style.display="block"
 document.getElementById("calendarTime").style.display="none"
+
+document.getElementById("toggleBtn").innerText="時間まで設定"
+
+markCalendar.updateSize()
 
 }
 
